@@ -1,6 +1,11 @@
 # csrmesh
 Reverse engineered bearer implementation of the CSRMesh BTLE protocol including all necessary cryptographic and packing routines required to send packages over a CSRMesh BTLE network. This particular implementation currently only supports the CSRMesh lighting API and has been suucssfully tested with Fiet HomeBrite smart LED bulbs. However, the implemtation of other CSRMesh APIs should be quite straightformard if needed.
 
+# Requirements
+ * Python 3.x
+ * Recent version of bluez
+ * pycrypto
+
 # Usage
     csrmesh.py [-h] --pin (4 digit pin) --dest (destination BT address) 
     [--level LEVEL] [--red RED] [--green GREEN] [--blue BLUE]
