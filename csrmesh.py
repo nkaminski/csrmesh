@@ -1,12 +1,17 @@
+#!/usr/bin/env python3
+
 import hmac
 import hashlib
 import struct
+import random
+import argparse
+import gatt
 from Crypto.Cipher import AES
-from binascii import hexlify,unhexlify
 
 def network_key(pin):
     #Derives the long term network key(128 bits) from the 4 digit setup PIN
     h = hashlib.sha256()
+    pin = str(pin)
     pin2 = pin.encode('ascii') + b'\x00MCP'
     h.update(pin2)
     dig = bytearray(h.digest())
@@ -31,16 +36,37 @@ def make_packet(key,seq,data):
     final = struct.pack("<Ic10s8sc",seq,magic,payload,hm,eof)
     return final
 
-def light_set_cmd(power, red, green, blue):
+def light_set_cmd(level, red, green, blue):
     cmd = b'\x73\x11'
-    p_cmd = struct.pack("<2x2s2xBBBB",cmd,power,red,green,blue)
+    #for level only, -128 is full off and -1 is full on, RGB appears to be 0 to 255 so remap level to 0 to 255
+    if(level < 0):
+        level=0
+    elif(level > 255):
+        level=255
+    level = (level//2)-128
+    p_cmd = struct.pack("<2x2s2xbBBB",cmd,level,red,green,blue)
     return p_cmd
-    
-print(hexlify(light_set_cmd(228,255,255,255)))
-p = make_packet(network_key('1337'),4000008,light_set_cmd(0,0,0,0))
-#p = make_packet(network_key('1337'),4000005,unhexlify('000073110000e4ffffff'))
-#p = make_packet(network_key('1337'),4000006,unhexlify('00007311000000000000'))
 
-print(hexlify(p))
-print(hexlify(p[0:20]))
-print(hexlify(p[20:24]))
+def random_seq():
+    #Sequence number must just be different, not necessarily sequential
+    return random.randint(1,16777215)
+
+def send_packet(dest,p):
+    #Send the packet, first 20 bytes to handle 0x0011 and remainder to 0x0014
+    gatt.gatt_write(dest,b'\x00\x11',p[0:20])
+    gatt.gatt_write(dest,b'\x00\x14',p[20:24])
+    return True
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--pin', type=int, required=True, help='4 digit mesh PIN number')
+    parser.add_argument('--dest', type=str, required=True, help='Destination address in aa:bb:cc:dd:ee:ff format')
+    parser.add_argument('--level', type=int, default=255, help='Overall level (0-255)')
+    parser.add_argument('--red', type=int, default=255, help='Red brightness (0-255)')
+    parser.add_argument('--green', type=int, default=255, help='Green brightness (0-255)')
+    parser.add_argument('--blue', type=int, default=255, help='Blue brightness (0-255)')
+    args = parser.parse_args()
+    
+    p = make_packet(network_key(args.pin),random_seq(),light_set_cmd(args.level,args.red,args.green,args.blue))
+    send_packet(args.dest,p)
