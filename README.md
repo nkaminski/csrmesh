@@ -3,11 +3,11 @@ Reverse engineered bearer/bridge implementation of the CSRMesh BTLE protocol inc
 
 # Requirements
  * Python 3.x
- * Recent version of bluez
+ * Recent version of bluez (requires gatttool binary)
  * pycrypto
 
 # Usage
-    csrmesh.py [-h] --pin (4 digit pin) --dest (destination BT address) 
+    ./csrmesh-cli.py [-h] --pin (4 digit pin) --dest (destination BT address) 
     [--level LEVEL] [--red RED] [--green GREEN] [--blue BLUE]
 All levels are represented using numbers from 0 (off) to 255 (maximum)
 

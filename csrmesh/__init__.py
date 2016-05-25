@@ -1,11 +1,9 @@
-#!/usr/bin/env python3
-
 import hmac
 import hashlib
 import struct
 import random
 import argparse
-import gatt
+from . import gatt
 from Crypto.Cipher import AES
 
 def network_key(pin):
@@ -56,17 +54,3 @@ def send_packet(dest,p):
     gatt.gatt_write(dest,b'\x00\x11',p[0:20])
     gatt.gatt_write(dest,b'\x00\x14',p[20:24])
     return True
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--pin', type=int, required=True, help='4 digit mesh PIN number')
-    parser.add_argument('--dest', type=str, required=True, help='Destination address in aa:bb:cc:dd:ee:ff format')
-    parser.add_argument('--level', type=int, default=255, help='Overall level (0-255)')
-    parser.add_argument('--red', type=int, default=255, help='Red brightness (0-255)')
-    parser.add_argument('--green', type=int, default=255, help='Green brightness (0-255)')
-    parser.add_argument('--blue', type=int, default=255, help='Blue brightness (0-255)')
-    args = parser.parse_args()
-    
-    p = make_packet(network_key(args.pin),random_seq(),light_set_cmd(args.level,args.red,args.green,args.blue))
-    send_packet(args.dest,p)
