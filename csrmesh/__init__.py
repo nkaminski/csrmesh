@@ -2,7 +2,6 @@ import hmac
 import hashlib
 import struct
 import random
-import argparse
 from . import gatt
 from Crypto.Cipher import AES
 

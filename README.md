@@ -7,7 +7,7 @@ Reverse engineered bearer/bridge implementation of the CSRMesh BTLE protocol inc
  * pycrypto
 
 # Usage
-    ./csrmesh-cli.py [-h] --pin (4 digit pin) --dest (destination BT address) 
+    csrmesh-cli [-h] --pin (4 digit pin) --dest (destination BT address) 
     [--level LEVEL] [--red RED] [--green GREEN] [--blue BLUE]
 All levels are represented using numbers from 0 (off) to 255 (maximum)
 

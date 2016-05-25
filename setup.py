@@ -20,4 +20,5 @@ setup(name='csrmesh',
         install_requires=[
         'pycrypto',
         ],
+        scripts=['bin/csrmesh-cli'],
         zip_safe=False)
