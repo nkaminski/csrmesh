@@ -1,5 +1,8 @@
 # csrmesh
-Reverse engineered bearer/bridge implementation of the CSRMesh BTLE protocol including all necessary cryptographic and packing routines required to send valid packets over a CSRMesh BTLE network. This particular implementation currently only supports the CSRMesh lighting API and has been suucssfully tested with Feit HomeBrite smart LED bulbs. However, the implemtation of other CSRMesh APIs should be quite straightformard if needed.
+Reverse engineered bearer/bridge implementation of the CSRMesh BTLE protocol including all necessary cryptographic and packing routines required to send valid packets over a CSRMesh BTLE network. This particular implementation currently only supports the CSRMesh lighting API and has been succssfully tested with Feit HomeBrite smart LED bulbs. However, the implemtation of other CSRMesh APIs should be quite straightformard if needed. Currently this only implements the sending and recieving of broadcast packets since I currently only have a single bulb to test with.
+
+# Tested Devices
+ * Feit HomeBrite A19 Household, Model AOM800/827/LED/HBR
 
 # Requirements
  * Python 3.x
