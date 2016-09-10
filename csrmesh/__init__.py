@@ -41,7 +41,7 @@ def decrypt_packet(key, data):
     dlen = len(data)-14
     (seq, magic, epayload, hmac_packet, eof) = struct.unpack("<Ic"+str(dlen)+"s8sc", data)
     #Pad, combine with header and compute HMAC
-    prehmac = struct.pack("<8xIc10s",seq,magic,epayload)
+    prehmac = struct.pack("<8xIc"+str(len(epayload))+"s",seq,magic,epayload)
     hm = bytearray(hmac.new(key, msg=prehmac, digestmod=hashlib.sha256).digest())
     #Reverse the order of the bytes and truncate
     hm.reverse()
