@@ -24,14 +24,14 @@ def make_packet(key,seq,data):
     base = struct.pack("<Ixc10x",seq,magic)
     ebase = enc.encrypt(base)[:dlen]
     #XOR the encrypted base with the data
-    payload = bytes([ a ^ b for (a,b) in zip(data, ebase) ])
+    payload = bytearray([ chr(a ^ ord(b)) for (a,b) in zip(data, ebase) ])
     #Now pad, combine with header and compute HMAC
-    prehmac = struct.pack("<8xIc"+str(dlen)+"s",seq,magic,payload)
+    prehmac = struct.pack("<8xIc"+str(dlen)+"s",seq,magic,str(payload))
     hm = bytearray(hmac.new(key, msg=prehmac, digestmod=hashlib.sha256).digest())
     #Reverse the order of the bytes and truncate
     hm.reverse()
     hm = bytes(hm)[:8]
-    final = struct.pack("<Ic"+str(dlen)+"s8sc",seq,magic,payload,hm,eof)
+    final = struct.pack("<Ic"+str(dlen)+"s8sc",seq,magic,str(payload),hm,eof)
     return final
 
 def decrypt_packet(key, data):
@@ -52,7 +52,7 @@ def decrypt_packet(key, data):
     base = struct.pack("<Ixc10x",seq,magic)
     ebase = enc.encrypt(base)[:dlen]
     #XOR the encrypted base with the data
-    decpayload = bytes([ a ^ b for (a,b) in zip(epayload, ebase) ])
+    decpayload = str(bytearray([ chr(ord(a) ^ ord(b)) for (a,b) in zip(epayload, ebase) ]))
     od['seq']=seq
     od['magic']=magic
     od['encpayload']=epayload
