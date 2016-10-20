@@ -6,14 +6,18 @@ from binascii import hexlify
 from . import gatt
 from Crypto.Cipher import AES
 
-def network_key(pin):
-    #Derives the long term network key(128 bits) from the 4 digit setup PIN
+def network_key(binary):
     h = hashlib.sha256()
-    pin2 = pin.encode('ascii') + b'\x00MCP'
-    h.update(pin2)
+    h.update(binary)
     dig = bytearray(h.digest())
     dig.reverse()
     return bytes(dig)[:16]
+
+def network_key_feit(pin):
+    #Derives the long term network key(128 bits) from the 4 digit setup PIN
+    strpin = str(pin).zfill(4)
+    pin2 = strpin.encode('ascii') + b'\x00MCP'
+    return network_key(pin2)
 
 def make_packet(key,seq,data):
     magic = b'\x80'

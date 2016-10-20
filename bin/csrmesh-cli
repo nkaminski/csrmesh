@@ -13,5 +13,5 @@ if __name__ == "__main__":
     parser.add_argument('--blue', type=int, default=255, help='Blue brightness (0-255)')
     args = parser.parse_args()
     
-    p = cm.make_packet(cm.network_key(args.pin),cm.random_seq(),cm.light_set_cmd(args.level,args.red,args.green,args.blue))
+    p = cm.make_packet(cm.network_key_feit(args.pin),cm.random_seq(),cm.light_set_cmd(args.level,args.red,args.green,args.blue))
     cm.send_packet(args.dest,p)
