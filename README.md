@@ -5,7 +5,7 @@ Reverse engineered bearer/bridge implementation of the CSRMesh BTLE protocol inc
  * Feit HomeBrite A19 Household, Model AOM800/827/LED/HBR with 1 bulb per network PIN in a given area
 
 # Requirements
- * Python 3.x
+ * Python 2.7.x and 3.x (preferred)
  * Recent version of bluez (requires gatttool binary)
  * pycrypto
 
