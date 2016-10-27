@@ -28,7 +28,7 @@ def make_packet(key,seq,data):
     base = struct.pack("<Ixc10x",seq,magic)
     ebase = enc.encrypt(base)[:dlen]
     #XOR the encrypted base with the data
-    payload = bytearray([ chr(a ^ ord(b)) for (a,b) in zip(data, ebase) ])
+    payload = bytearray([ chr(ord(a) ^ ord(b)) for (a,b) in zip(data, ebase) ])
     #Now pad, combine with header and compute HMAC
     prehmac = struct.pack("<8xIc"+str(dlen)+"s",seq,magic,str(payload))
     hm = bytearray(hmac.new(key, msg=prehmac, digestmod=hashlib.sha256).digest())
