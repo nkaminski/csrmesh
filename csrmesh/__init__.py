@@ -26,16 +26,17 @@ def make_packet(key,seq,data):
     enc = AES.new(key, AES.MODE_ECB)
     #Compute "base" based on the sequence number and encrypt with net key
     base = struct.pack("<Ixc10x",seq,magic)
-    ebase = enc.encrypt(base)[:dlen]
+    data = bytearray(data)
+    ebase = bytearray(enc.encrypt(base)[:dlen])
     #XOR the encrypted base with the data
-    payload = bytearray([ chr(ord(a) ^ ord(b)) for (a,b) in zip(data, ebase) ])
+    payload = bytearray([ a ^ b for (a,b) in zip(data, ebase) ])
     #Now pad, combine with header and compute HMAC
-    prehmac = struct.pack("<8xIc"+str(dlen)+"s",seq,magic,str(payload))
+    prehmac = struct.pack("<8xIc"+str(dlen)+"s",seq,magic,bytes(payload))
     hm = bytearray(hmac.new(key, msg=prehmac, digestmod=hashlib.sha256).digest())
     #Reverse the order of the bytes and truncate
     hm.reverse()
     hm = bytes(hm)[:8]
-    final = struct.pack("<Ic"+str(dlen)+"s8sc",seq,magic,str(payload),hm,eof)
+    final = struct.pack("<Ic"+str(dlen)+"s8sc",seq,magic,bytes(payload),hm,eof)
     return final
 
 def decrypt_packet(key, data):
