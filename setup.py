@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='csrmesh',
-        version='0.6.2',
+        version='0.7.0',
         description='Reverse engineered implementation of the CSRMesh bridge protocol',
         long_description='Reverse engineered implementation of the CSRMesh bridge protocol. Currently only capable of interfacing with Feit HomeBrite smart bulbs but support for additional devices can easily be added. Requires bluez gatttool to transmit packets.',
         url='https://github.com/nkaminski/csrmesh',
