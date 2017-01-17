@@ -1,8 +1,8 @@
 # csrmesh
-Reverse engineered bearer/bridge implementation of the CSRMesh BTLE protocol including all necessary cryptographic and packing routines required to send valid packets over a CSRMesh BTLE network. This particular implementation currently only supports the CSRMesh lighting API and has been succssfully tested with Feit HomeBrite smart LED bulbs. However, the implemtation of other CSRMesh APIs should be quite straightformard if needed. Currently this only implements the sending and recieving of packets on networks with only one bulb per network PIN since I originally developed this with a single bulb to test with. However, I now plan to expand support to multi bulb networks since I have recently acquired a 2nd bulb and can confirm that this code does NOT work as intended when there is 2 bulbs setup with the same PIN on a mesh network.
+Reverse engineered bearer/bridge implementation of the CSRMesh BTLE protocol including all necessary cryptographic and packing routines required to send valid packets over a CSRMesh BTLE network. This particular implementation currently only supports the CSRMesh lighting API and has been succssfully tested with a pair of Feit HomeBrite smart LED bulbs. However, the implemtation of other CSRMesh APIs should be quite straightformard if needed. This implementation now supports sending packets to multi-device mesh networks as well as addressing devices by either device ID or group ID.
 
 # Tested Devices
- * Feit HomeBrite A19 Household, Model AOM800/827/LED/HBR with 1 bulb per network PIN in a given area
+ * Feit HomeBrite A19 Household, Model AOM800/827/LED/HBR with a max of 254 bulbs(theoretically) per network PIN in a given area
 
 # Requirements
  * Python 2.7.x and 3.x (preferred)
@@ -10,9 +10,21 @@ Reverse engineered bearer/bridge implementation of the CSRMesh BTLE protocol inc
  * pycrypto
 
 # Usage
-    csrmesh-cli [-h] --pin (4 digit pin) --dest (destination BT address) 
-    [--level LEVEL] [--red RED] [--green GREEN] [--blue BLUE]
+    csrmesh-cli [-h] --pin (4 digit pin) --dest (destination BTLE address) 
+    [--level LEVEL] [--red RED] [--green GREEN] [--blue BLUE] [--objid OBJID]
+
 All levels are represented using numbers from 0 (off) to 255 (maximum)
+
+Object ID's are specified via the following syntax:
+ * An object ID of zero results in a broadcast message. This is the default.
+ * Positive object ID's will be interpreted as an individual device ID. Device indicies begin at 1.
+ * Negative object ID's will be interpreted as group numbers.
+ 
+Addressing examples:
+
+    Bulb/Device 5 -> --objid 5 
+    Group 3       -> --objid -3
+    Broadcast     -> --objid 0 (or omit the --objid option)
 
 # Protocol Documentation
 ## Network Key Derivation
