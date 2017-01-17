@@ -84,7 +84,8 @@ def print_decrypted_packet(decpkt):
         else:
             print(k+": "+str(decpkt[k]))
 
-def light_set_cmd(level, red, green, blue):
+def light_set_cmd(level, red, green, blue, objid=0):
+    #Object ID specifies the bulb or group of bulbs that this command is to be applied to. +ve values are interpreted as device IDs, -ve values will be interpreted as group IDs, and 0 is broadcast.
     cmd = b'\x73\x11'
     #for level only, -128 is full off and -1 is full on, RGB appears to be 0 to 255 so remap level to 0 to 255
     if(level < 0):
@@ -92,7 +93,12 @@ def light_set_cmd(level, red, green, blue):
     elif(level > 255):
         level=255
     level = (level//2)-128
-    p_cmd = struct.pack("<2x2s2xbBBB",cmd,level,red,green,blue)
+    if(objid > 0):
+        flags = 0x80
+    else:
+        flags = 0x00
+        objid = abs(objid)
+    p_cmd = struct.pack("<2x2sBBbBBB",cmd,objid,flags,level,red,green,blue)
     return p_cmd
 
 def random_seq():
