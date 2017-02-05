@@ -3,7 +3,7 @@ from . import gatt
 from . import crypto
 
 def set_light(dest, pin, level, red, green, blue, objid=0):
-    cmd = generate_light_set_cmd(level, red, green, blue, objid=0)
+    cmd = generate_light_set_cmd(level, red, green, blue, objid)
 
     key = crypto.network_key_from_pin(pin)
     packet = crypto.make_packet(key, crypto.random_seq(), cmd)

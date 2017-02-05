@@ -3,7 +3,7 @@ from . import gatt
 from . import crypto
 
 def set_position(dest, pin, position, objid=0):
-    cmd = generate_move_set_cmd(position, objid=0)
+    cmd = generate_move_set_cmd(position, objid)
 
     key = crypto.network_key_from_pin(pin)
     packet = crypto.make_packet(key, crypto.random_seq(), cmd)
