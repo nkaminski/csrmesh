@@ -77,13 +77,6 @@ def network_key_bruteforce(data):
             return (pinstr, trial)
     return None
 
-def print_decrypted_packet(decpkt):
-    for k in decpkt.keys():
-        if(type(decpkt[k]) is bytes):
-            print(k+": "+hexlify(decpkt[k]).decode('ascii'))
-        else:
-            print(k+": "+str(decpkt[k]))
-
 def light_set_cmd(level, red, green, blue, objid=0):
     #Object ID specifies the bulb or group of bulbs that this command is to be applied to. +ve values are interpreted as device IDs, -ve values will be interpreted as group IDs, and 0 is broadcast.
     cmd = b'\x73\x11'
