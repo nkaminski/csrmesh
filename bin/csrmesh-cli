@@ -5,14 +5,28 @@ import csrmesh as cm
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+
+    # Generic properties
     parser.add_argument('--pin', type=int, required=True, help='4 digit mesh PIN number')
     parser.add_argument('--dest', type=str, required=True, help='BTLE destination address in aa:bb:cc:dd:ee:ff format')
     parser.add_argument('--objid', type=int, default=0, help='CSRMesh light object ID, +ve values specify devices, -ve values specify groups, 0 is broadcast')
+
+    # Light specific
     parser.add_argument('--level', type=int, default=255, help='Overall level (0-255)')
     parser.add_argument('--red', type=int, default=255, help='Red brightness (0-255)')
     parser.add_argument('--green', type=int, default=255, help='Green brightness (0-255)')
     parser.add_argument('--blue', type=int, default=255, help='Blue brightness (0-255)')
+
+    # MOVE specific
+    parser.add_argument('--position', type=int, default=255, help='Position to move to (0-255)')
+
+    # Operating mode
+    parser.add_argument('device', choices=['lightbulb', 'move'], help='Pick lightbulb or move mode')
+
     args = parser.parse_args()
-    
-    p = cm.make_packet(cm.network_key_feit(args.pin),cm.random_seq(),cm.light_set_cmd(args.level,args.red,args.green,args.blue,args.objid))
-    cm.send_packet(args.dest,p)
+
+    if(args.device == 'lightbulb'):
+        cm.lightbulb.set_light(args.dest, args.pin, args.level, args.red, args.green, args.blue, args.objid)
+
+    if(args.device == 'move'):
+        cm.movecontroller.set_position(args.dest, args.pin, args.position, args.objid)
