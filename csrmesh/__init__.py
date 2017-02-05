@@ -71,7 +71,7 @@ def network_key_bruteforce(data):
     #Cracks the 4 digit pin given the contents of a packet in a few seconds.
     for x in range(0,10000):
         pinstr="{:04X}".format(x)
-        ki = network_key(pinstr)
+        ki = network_key_feit(pinstr)
         trial = decrypt_packet(ki, data)
         if(trial['hmac_computed'] == trial['hmac_packet']):
             return (pinstr, trial)
