@@ -21,13 +21,11 @@ def make_packet(key,seq,data):
     magic = b'\x80'
     eof = b'\xff'
     dlen = len(data)
-    enc = AES.new(key, AES.MODE_ECB)
-    #Compute "base" based on the sequence number and encrypt with net key
-    base = struct.pack("<Ixc10x",seq,magic)
-    data = bytearray(data)
-    ebase = bytearray(enc.encrypt(base)[:dlen])
-    #XOR the encrypted base with the data
-    payload = bytearray([ a ^ b for (a,b) in zip(data, ebase) ])
+    #Compute 128 bit IV based on the sequence number/nonce and encrypt with net key
+    iv = struct.pack("<Ixc10x",seq,magic)
+    #Initialize AES in OFB mode with the IV we just computed
+    enc = AES.new(key, AES.MODE_OFB, iv)
+    payload = bytearray(enc.encrypt(data))
     #Now pad, combine with header and compute HMAC
     prehmac = struct.pack("<8xIc"+str(dlen)+"s",seq,magic,bytes(payload))
     hm = bytearray(hmac.new(key, msg=prehmac, digestmod=hashlib.sha256).digest())
