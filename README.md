@@ -9,7 +9,8 @@ Reverse engineered bearer/bridge implementation of the CSRMesh BTLE protocol inc
 
 # Requirements
  * Python 2.7.x or 3.x
- * bluez with gatttool binary, this will soon be reworked to use bluepy since gatttool is deprecated.
+ * bluez 5.3 or newer
+ * bluepy
  * pycryptodomex
 
 # Usage

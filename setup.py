@@ -19,6 +19,7 @@ setup(name='csrmesh',
         license='LGPLv3',
         packages=['csrmesh'],
         install_requires=[
+        'bluepy',
         'pycryptodomex',
         ],
         scripts=['bin/csrmesh-cli'],
