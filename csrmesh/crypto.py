@@ -2,7 +2,7 @@ import hmac
 import hashlib
 import struct
 import random
-from Crypto.Cipher import AES
+from Cryptodome.Cipher import AES
 
 def network_key_from_pin(pin):
     #Derives the long term network key(128 bits) from the 4 digit setup PIN

@@ -8,9 +8,9 @@ Reverse engineered bearer/bridge implementation of the CSRMesh BTLE protocol inc
 
 
 # Requirements
- * Python 2.7.x and 3.x (preferred)
- * Recent version of bluez (requires gatttool binary)
- * pycrypto
+ * Python 2.7.x or 3.x
+ * bluez with gatttool binary, this will soon be reworked to use bluepy since gatttool is deprecated.
+ * pycryptodomex
 
 # Usage
     csrmesh-cli {lightbulb,move} [-h] --pin (4 digit pin) --dest (destination BTLE address)
@@ -34,7 +34,7 @@ Addressing examples:
 The 128 bit network key used in CSRMesh networks is derived by concatenating the ASCII representation of the PIN with a null byte and the string 'MCP', computing the SHA256 hash of the string, reversing the order of the bytes in the resulting hash, and taking the first 16 bytes as the key.
 
 ## Forming Authenticated Packets
-Packets sent to CSRMesh devices require authentication as well as encryption. All multibyte types are represented in little endian format. To form a valid packet, the sequence number, the constant 0x0080, and N null bytes where N is equal to the size of the payload to be sent are concatenated together and encrypted using the network key using AES-128 in ECB mode. The result of such encryption is then truncated to the length of the payload to be sent. The payload is XOR'ed with the result of the previous encryption to form the encrypted payload. Next, the message authentication code is computed using HMAC-SHA256 using the network key as the secret of the following data: 8 null bytes, sequence number, constant 0x80 and encrypted payload. The order of the bytes in the resulting hash are then reversed and the hash truncated to 8 bytes. Finally, the packet is formed by contatenating the sequence number, constant 0x80, encrypted payload, truncated HMAC, and the constant 0xff.
+Packets sent to CSRMesh devices require authentication as well as encryption. All multibyte types are represented in little endian format. To form a valid packet, the sequence/nonce value, constant 0x0080, and 10 null bytes are concatenated together to form a 128 bit initialization vector (IV). This IV, as well as the network key derived earlier is then used to initialaize AES-128 in OFB mode. The arbitrary length data payload is then encrypted using this AES-OFB instance to form the encrypted payload. Next, a message authentication code is computed using HMAC-SHA256, using the network key as the secret, of the following data: 8 null bytes, sequence number, constant 0x80 and encrypted payload. The order of the bytes in the resulting hash are then reversed and the hash truncated to 8 bytes. The final output packet can then be built by contatenating the sequence/nonce value, constant 0x80, encrypted payload, truncated HMAC, and the constant 0xff.
 
 ## Sending packets
 Packets are then sent via the Bluetooth LE GATT protocol. To send a packet, the data must be written to two write only handles, for Feit HomeBrite lightbulbs that is 0x0011 and 0x0014 for the Teptron MOVE that is 0x0021. If the packet is longer than 20 bytes, the first 20 bytes first are written to the first handle and then the remaining bytes are written to the handle with an address increased by 3 (e.g. handle 0x0011 +3 = 0x0014).
