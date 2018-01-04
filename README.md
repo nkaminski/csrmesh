@@ -4,7 +4,7 @@ Reverse engineered bearer/bridge implementation of the CSRMesh BTLE protocol inc
 # Tested Devices
  * Feit HomeBrite A19 Household, Model AOM800/827/LED/HBR
  * Feit HomeBrite B10 Household, Model CFC300/LED/HBR
- * Teptron MOVE
+ * Teptron MOVE (partial support, see issue #17)
 
 
 # Requirements
