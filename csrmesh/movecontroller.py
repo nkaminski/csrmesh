@@ -2,13 +2,13 @@ import struct
 from . import gatt
 from . import crypto
 
-def set_position(dest, pin, position, objid=0):
+def set_position(dest, pin, position, objid=0, debug=False):
     cmd = generate_move_set_cmd(position, objid)
 
     key = crypto.network_key_from_pin(pin)
     packet = crypto.make_packet(key, crypto.random_seq(), cmd)
 
-    gatt.send_packet(dest, 0x0021, packet)
+    return gatt.send_packet(dest, 0x0021, packet, debug)
 
 def generate_move_set_cmd(position, objid=0):
     #Object ID specifies the bulb or group of bulbs that this command is to be applied to.

@@ -24,9 +24,15 @@ if __name__ == "__main__":
     parser.add_argument('device', choices=['lightbulb', 'move'], help='Pick lightbulb or move mode')
 
     args = parser.parse_args()
+    res=False
 
     if(args.device == 'lightbulb'):
-        cm.lightbulb.set_light(args.dest, args.pin, args.level, args.red, args.green, args.blue, args.objid)
+        res = cm.lightbulb.set_light(args.dest, args.pin, args.level, args.red, args.green, args.blue, args.objid, True)
 
     if(args.device == 'move'):
-        cm.movecontroller.set_position(args.dest, args.pin, args.position, args.objid)
+        res = cm.movecontroller.set_position(args.dest, args.pin, args.position, args.objid, True)
+
+    if res:
+        print("[+] Operation succeeded")
+    else:
+        print("[-] Operation failed")

@@ -2,13 +2,13 @@ import struct
 from . import gatt
 from . import crypto
 
-def set_light(dest, pin, level, red, green, blue, objid=0):
+def set_light(dest, pin, level, red, green, blue, objid=0, debug=False):
     cmd = generate_light_set_cmd(level, red, green, blue, objid)
 
     key = crypto.network_key_from_pin(pin)
     packet = crypto.make_packet(key, crypto.random_seq(), cmd)
 
-    gatt.send_packet(dest, 0x0011, packet)
+    return gatt.send_packet(dest, 0x0011, packet, debug)
 
 def generate_light_set_cmd(level, red, green, blue, objid=0):
     #Object ID specifies the bulb or group of bulbs that this command is to be applied to. +ve values are interpreted as device IDs, -ve values will be interpreted as group IDs, and 0 is broadcast.
