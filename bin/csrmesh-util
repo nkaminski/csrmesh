@@ -1,0 +1,50 @@
+#!/usr/bin/python
+
+import argparse
+import csrmesh as cm
+from binascii import hexlify, unhexlify
+from pprint import pprint
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+
+    # Generic properties
+    parser.add_argument('--pin', type=int, required=False, help='4 digit mesh PIN number')
+    parser.add_argument('--seq', type=int, required=False, help='Sequence number used in encryption (ignored for decryption)')
+    parser.add_argument('--data', type=str, required=True, help='Data payload expressed in hexadecimal')
+
+    # Operating mode
+    parser.add_argument('mode', choices=['encrypt', 'decrypt'], help='Chooses the operation, `encrypt` or `decrypt`')
+
+    args = parser.parse_args()
+    res = False
+    pin = args.pin
+    data = unhexlify(args.data)
+    print("[+] Data length %s" % len(data))
+    if args.mode == 'decrypt':
+        if not pin:
+            print("[+] No PIN provided so bruteforcing...")
+            pin = cm.crypto.bruteforce_pin(data)
+            print("[+] PIN found: %s" % (pin))
+        if pin:
+            netkey = cm.crypto.network_key_from_pin(pin)
+            res = cm.crypto.decrypt_packet(netkey, data)
+
+    elif args.mode == 'encrypt':
+        if pin and args.seq:
+            netkey = cm.crypto.network_key_from_pin(pin)
+            res = cm.crypto.make_packet(netkey, args.seq, data)
+        else:
+            print("[-] PIN and seq. number is required to encrypt data")
+
+    else:
+        print("[-] Unknown operation")
+
+    if res:
+        print("[+] Operation succeeded")
+        if isinstance(res,dict):
+            pprint(res)
+        else:
+            print(hexlify(res))
+    else:
+        print("[-] Operation failed")

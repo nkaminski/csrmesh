@@ -21,7 +21,7 @@ def make_packet(key,seq,data):
     magic = b'\x80'
     eof = b'\xff'
     dlen = len(data)
-    #Compute 128 bit IV based on the sequence number/nonce and encrypt with net key
+    #Compute 128 bit IV based on the sequence number/nonce
     iv = struct.pack("<Ixc10x",seq,magic)
     #Initialize AES in OFB mode with the IV we just computed
     enc = AES.new(key, AES.MODE_OFB, iv)
@@ -47,13 +47,11 @@ def decrypt_packet(key, data):
     #Reverse the order of the bytes and truncate
     hm.reverse()
     hmac_computed = bytes(hm)[:8]
-    #Begin decryption
-    enc = AES.new(key, AES.MODE_ECB)
-    #Compute "base" based on the sequence number and encrypt with net key
-    base = struct.pack("<Ixc10x",seq,magic)
-    ebase = enc.encrypt(base)[:dlen]
-    #XOR the encrypted base with the data
-    decpayload = str(bytearray([ chr(ord(a) ^ ord(b)) for (a,b) in zip(epayload, ebase) ]))
+    #Compute the IV and initialize AES context
+    iv = struct.pack("<Ixc10x",seq,magic)
+    enc = AES.new(key, AES.MODE_OFB, iv)
+    #Decrypt the payload
+    decpayload = enc.decrypt(bytes(epayload))
     od['seq']=seq
     od['magic']=magic
     od['encpayload']=epayload
@@ -66,11 +64,10 @@ def decrypt_packet(key, data):
 def bruteforce_pin(data):
     #Cracks the 4 digit pin given the contents of a packet in a few seconds.
     for x in range(0,10000):
-        pinstr="{:04X}".format(x)
-        ki = network_key_from_pin(pinstr)
+        ki = network_key_from_pin(x)
         trial = decrypt_packet(ki, data)
         if(trial['hmac_computed'] == trial['hmac_packet']):
-            return pinstr
+            return x
     return None
 
 def random_seq():
