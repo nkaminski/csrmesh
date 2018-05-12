@@ -8,7 +8,7 @@ def set_position(dest, pin, position, objid=0, debug=False):
     key = crypto.network_key_from_pin(pin)
     packet = crypto.make_packet(key, crypto.random_seq(), cmd)
 
-    return gatt.send_packet(dest, 0x0021, packet, debug)
+    return gatt.send_packet(dest, 0x001c, packet, debug)
 
 def generate_move_set_cmd(position, objid=0):
     #Object ID specifies the bulb or group of bulbs that this command is to be applied to.
