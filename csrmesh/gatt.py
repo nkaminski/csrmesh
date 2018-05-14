@@ -10,7 +10,7 @@ def connect(mac_list, debug=False):
         try:
             if debug:
                 print("[+] Connecting to device %s" % mac)
-            device = btle.Peripheral(mac, addrType=btle.ADDR_TYPE_PUBLIC)
+            device = btle.Peripheral(mac, addrType=btle.ADDR_TYPE_RANDOM)
             return device
         except btle.BTLEException as err:
             if debug:
