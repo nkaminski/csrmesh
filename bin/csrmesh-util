@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import argparse
 import csrmesh as cm
@@ -9,7 +9,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     # Generic properties
-    parser.add_argument('--pin', type=int, required=False, help='4 digit mesh PIN number')
+    parser.add_argument('--pin', type=str, required=False, help='Network PIN or passphrase')
     parser.add_argument('--seq', type=int, required=False, help='Sequence number used in encryption (ignored for decryption)')
     parser.add_argument('--data', type=str, required=True, help='Data payload expressed in hexadecimal')
 
@@ -43,7 +43,10 @@ if __name__ == "__main__":
     if res:
         print("[+] Operation succeeded")
         if isinstance(res,dict):
-            pprint(res)
+            for k,v in res.items():
+                if isinstance(v, bytes):
+                    v = hexlify(v)
+                print('{}: {}'.format(k,v))
         else:
             print(hexlify(res))
     else:

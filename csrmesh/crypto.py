@@ -4,10 +4,12 @@ import struct
 import random
 from Cryptodome.Cipher import AES
 
-def network_key_from_pin(pin):
-    #Derives the long term network key(128 bits) from the 4 digit setup PIN
-    strpin = str(pin).zfill(4)
-    pin2 = strpin.encode('ascii') + b'\x00MCP'
+def network_key_from_pin(pin, intpinsize=4):
+    # Derives the long term network key(128 bits) from the PIN,
+    # padding the pin to intpinsize digits if provided as an integer
+    if isinstance(pin, int):
+        pin = str(pin).zfill(pinsize)
+    pin2 = pin.encode('ascii') + b'\x00MCP'
     return generate_key(pin2)
 
 def generate_key(binary):
@@ -62,12 +64,14 @@ def decrypt_packet(key, data):
     return od
 
 def bruteforce_pin(data):
-    #Cracks the 4 digit pin given the contents of a packet in a few seconds.
-    for x in range(0,10000):
-        ki = network_key_from_pin(x)
-        trial = decrypt_packet(ki, data)
-        if(trial['hmac_computed'] == trial['hmac_packet']):
-            return x
+    # Cracks the up to 6 digit pin within a minute,
+    # given the contents of a packet.
+    for pinlen in range(1,7):
+        for x in range(0,(10**pinlen)+1):
+            ki = network_key_from_pin(x, pinlen)
+            trial = decrypt_packet(ki, data)
+            if(trial['hmac_computed'] == trial['hmac_packet']):
+                return x
     return None
 
 def random_seq():
