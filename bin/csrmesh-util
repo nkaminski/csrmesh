@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import sys
+import json
 import argparse
 import csrmesh as cm
 from binascii import hexlify, unhexlify
@@ -11,7 +13,8 @@ if __name__ == "__main__":
     # Generic properties
     parser.add_argument('--pin', type=str, required=False, help='Network PIN or passphrase')
     parser.add_argument('--seq', type=int, required=False, help='Sequence number used in encryption (ignored for decryption)')
-    parser.add_argument('--data', type=str, required=True, help='Data payload expressed in hexadecimal')
+    parser.add_argument('--data', type=str, required=False, help='Data payload expressed in hexadecimal')
+    parser.add_argument('--capturejson', type=str, required=False, help='JSON formatted data file exported from Wireshark containing Bluetooth packets')
 
     # Operating mode
     parser.add_argument('mode', choices=['encrypt', 'decrypt'], help='Chooses the operation, `encrypt` or `decrypt`')
@@ -19,16 +22,53 @@ if __name__ == "__main__":
     args = parser.parse_args()
     res = False
     pin = args.pin
-    data = unhexlify(args.data)
-    print("[+] Data length %s" % len(data))
+    if args.data:
+        data = unhexlify(args.data)
+        print("[+] Data length %s" % len(data))
+
+    # Function selection
     if args.mode == 'decrypt':
-        if not pin:
-            print("[+] No PIN provided so bruteforcing...")
-            pin = cm.crypto.bruteforce_pin(data)
-            print("[+] PIN found: %s" % (pin))
-        if pin:
-            netkey = cm.crypto.network_key_from_pin(pin)
-            res = cm.crypto.decrypt_packet(netkey, data)
+        if args.capturejson:
+            # Assert Python 3.2+
+            if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] < 2):
+                raise RuntimeError("Reading JSON PCAPs requires Python 3.2 or later!")
+
+            # Simulate the pcap against the virtual device
+            print("[+] Processing and decrypting captured data")
+            vdev = cm.util.CSRVirtualDevice(args.pin)
+
+            print('[+] Loading input file')
+            with open(args.capturejson, 'r') as fp:
+                data = json.load(fp)
+            print("[+] %s packets read" % len(data))
+
+            for packet in data:
+                l2capcid = packet['_source']['layers']['btl2cap']['btl2cap.cid']
+                if int(l2capcid) != 4:
+                    # Not a GATT packet
+                    continue
+                gattdata = packet['_source']['layers']['btatt']
+
+                # Is this a write command?
+                if cm.util.hex2int(gattdata['btatt.opcode']) == 0x52:
+                    handle = cm.util.hex2int(gattdata['btatt.handle'])
+                    hexdata = gattdata['btatt.value'].replace(':','')
+                    bindata = unhexlify(hexdata)
+                    print("Write handle {:02x} with value {}, passing to virtual device".format(handle, hexdata))
+                    vdev.set_handle(handle, bindata)
+            res = vdev.get_all_payloads()
+
+        elif args.data:
+            # Handle single packet decryption
+            if not pin:
+                print("[+] No PIN provided so bruteforcing...")
+                pin = cm.crypto.bruteforce_pin(data)
+                print("[+] PIN found: %s" % (pin))
+            if pin:
+                netkey = cm.crypto.network_key_from_pin(pin)
+                res = cm.crypto.decrypt_packet(netkey, data)
+        else:
+            print("[-] Nothing to decrypt, either --data or --capturejson must be provided")
 
     elif args.mode == 'encrypt':
         if pin and args.seq:
@@ -47,6 +87,8 @@ if __name__ == "__main__":
                 if isinstance(v, bytes):
                     v = hexlify(v)
                 print('{}: {}'.format(k,v))
+        elif isinstance(res,list):
+            pprint(list(map(hexlify, res)))
         else:
             print(hexlify(res))
     else:
