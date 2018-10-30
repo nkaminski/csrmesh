@@ -39,7 +39,7 @@ class CSRVirtualDevice(object):
             self.hregister = data
             return self._registerChanged()
         else:
-            self._debugprint('[-] Handle 0x{} does not map to a vaild register'.format(hexlify(self.handle)))
+            self._debugprint('[-] Handle 0x{:x} does not map to a vaild register'.format(handle))
 
     # Set the value of a virtual device register directly
     def set_l_register(self, data):
