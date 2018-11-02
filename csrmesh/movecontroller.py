@@ -25,5 +25,24 @@ def generate_move_set_cmd(position, objid=0):
     # Command to send, 0x22 is move to position, see: http://www.teptron.com/MOVE_UART_Commands_ver1.0.pdf
     cmd = 0x22
 
-    p_cmd = struct.pack("<BBBBB",objid,flags,magic,cmd,position)
+    # (unconfirmed) Value thought to control speed
+    speed = 0xffff
+
+    # Sequence number, capped to 0-255 (so that it fits in one byte) and stored as function attribute
+    try:
+        if generate_move_set_cmd.seq == 255:
+            generate_move_set_cmd.seq = 0
+        else:
+            generate_move_set_cmd.seq += 1
+    except AttributeError:
+        generate_move_set_cmd.seq = 0
+
+    p_cmd = struct.pack("<BBBBBHxB",
+                        objid,
+                        flags,
+                        magic,
+                        cmd,
+                        position,
+                        speed,
+                        generate_move_set_cmd.seq)
     return p_cmd
