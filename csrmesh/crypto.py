@@ -8,7 +8,7 @@ def network_key_from_pin(pin, intpinsize=4):
     # Derives the long term network key(128 bits) from the PIN,
     # padding the pin to intpinsize digits if provided as an integer
     if isinstance(pin, int):
-        pin = str(pin).zfill(pinsize)
+        pin = str(pin).zfill(intpinsize)
     pin2 = pin.encode('ascii') + b'\x00MCP'
     return generate_key(pin2)
 
