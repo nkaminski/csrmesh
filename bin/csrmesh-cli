@@ -7,7 +7,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     # Generic properties
-    parser.add_argument('--pin', type=int, required=True, help='4 digit mesh PIN number')
+    parser.add_argument('--pin', type=str, required=True, help='Mesh PIN number')
     parser.add_argument('--dest', type=str, required=True, help='BTLE destination address in aa:bb:cc:dd:ee:ff format')
     parser.add_argument('--objid', type=int, default=0, help='CSRMesh light object ID, +ve values specify devices, -ve values specify groups, 0 is broadcast')
 
